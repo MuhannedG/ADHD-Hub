@@ -95,7 +95,7 @@ export default function TaskManagerScreen() {
   return (
     <SafeAreaView style={styles.container}>
        <ImageBackground
-        source={require('@/assets/images/partial-react-logo.png')} //background image
+        source={require('@/assets/images/fox.webp')} //background image
         style={styles.backgroundImage}
         resizeMode="cover"
       >
@@ -131,24 +131,6 @@ export default function TaskManagerScreen() {
         renderItem={({ item }) => (
           <View style={styles.taskItem}>
             <View>
-              <Text style={styles.taskTitle}>{item.title}</Text>
-              <Text style={styles.taskDescription}>{item.description}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDeleteTask(item.id)}
-            >
-              <Text style={styles.deleteButtonText}>Delete</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.checkbox}
-              onPress={() => toggleTaskCompletion(item.id)}
-            >
-              <Text style={item.completed ? styles.checkboxChecked : styles.checkboxUnchecked}>
-                ✓
-              </Text>
-            </TouchableOpacity>
-            <View>
               <Text
                 style={[
                   styles.taskTitle,
@@ -166,8 +148,25 @@ export default function TaskManagerScreen() {
                 {item.description}
               </Text>
             </View>
+
+            <TouchableOpacity
+              style={styles.checkbox}
+              onPress={() => toggleTaskCompletion(item.id)}
+            >
+              <Text style={item.completed ? styles.checkboxChecked : styles.checkboxUnchecked}>
+              [✔]
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDeleteTask(item.id)}
+            >
+              <Text style={styles.deleteButtonText}>Delete</Text>
+            </TouchableOpacity>
           </View>
         )}
+        
         ListEmptyComponent={<Text style={styles.emptyText}>No tasks available</Text>}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       />
@@ -266,7 +265,7 @@ const createStyles = (isDarkMode: boolean) =>
       justifyContent: 'flex-end', // Position the overlay at the bottom
     },
     headerOverlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
+      backgroundColor: 'rgba(90, 90, 57, 0.5)', // Semi-transparent overlay
       padding: 20,
     },
     headerTitle: {
@@ -292,8 +291,8 @@ const createStyles = (isDarkMode: boolean) =>
       alignItems: 'center',
     },
     categoryButtonActive: {
-      backgroundColor: '#6c63ff',
-      borderColor: '#6c63ff',
+      backgroundColor: 'rgba(90, 90, 57, 0.5)',
+      //borderColor: '#6c63ff',
     },
     categoryText: {
       color: isDarkMode ? '#aaa' : '#000',
@@ -357,7 +356,7 @@ const createStyles = (isDarkMode: boolean) =>
     addButton: {
       padding: 15,
       borderRadius: 10,
-      backgroundColor: '#6c63ff',
+      backgroundColor: 'rgba(90, 90, 57, 0.5)',
       alignItems: 'center',
     },
     addButtonText: {
@@ -377,6 +376,7 @@ const createStyles = (isDarkMode: boolean) =>
       fontSize: 16,
       fontWeight: 'bold',
       marginBottom: 10,
+      color: '#fff',
     },
     modalButtons: {
       flexDirection: 'row',
