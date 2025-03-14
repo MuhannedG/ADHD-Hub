@@ -8,15 +8,20 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+   
     "ios": {
+      "bundleIdentifier": "com.mycompany.adhdhubi",
       "supportsTablet": true
     },
+    
     "android": {
+      "bundleIdentifier": "com.mycompany.adhdhuba",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
+   
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -32,6 +37,19 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "googleServicesFile": "./ios/GoogleService-Info.plist"
+          },
+          "android": {
+            "googleServicesFile": "./android/google-services.json"
+          }
+        }
+
       ]
     ],
     "experiments": {

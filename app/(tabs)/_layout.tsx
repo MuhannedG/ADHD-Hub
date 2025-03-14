@@ -44,7 +44,7 @@ export default function TabLayout() {
         name="task"
         options={{
           title: 'Task',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="tick.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="ticket.fill" color={color} />,
         }}
       />
     </Tabs>

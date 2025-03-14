@@ -1,74 +1,137 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const DashboardScreen: React.FC = () => {
+  const [points, setPoints] = useState(0);
+  const [tasksCompleted, setTasksCompleted] = useState(0);
+  const [focusSessions, setFocusSessions] = useState(0);
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
-export default function HomeScreen() {
+  // Simulated actions that earn points
+  const completeTask = () => {
+    setTasksCompleted(prev => prev + 1);
+    setPoints(prev => prev + 10); // Earn 10 points for completing a task
+  };
+
+  const startFocusSession = () => {
+    setFocusSessions(prev => prev + 1);
+    setPoints(prev => prev + 20); // Earn 20 points for using the focus session
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={[styles.container, isDarkMode && styles.darkContainer]}>
+      <Text style={[styles.header, isDarkMode && styles.darkText]}>Dashboard</Text>
+      
+      {/* Stats Section */}
+      <View style={[styles.statsContainer, isDarkMode && styles.darkCard]}>
+        <Text style={[styles.statsTitle, isDarkMode && styles.darkText]}>Your Stats</Text>
+        <View style={styles.statRow}>
+          <Text style={[styles.statLabel, isDarkMode && styles.darkText]}>Points:</Text>
+          <Text style={[styles.statValue, isDarkMode && styles.darkText]}>{points}</Text>
+        </View>
+        <View style={styles.statRow}>
+          <Text style={[styles.statLabel, isDarkMode && styles.darkText]}>Tasks Completed:</Text>
+          <Text style={[styles.statValue, isDarkMode && styles.darkText]}>{tasksCompleted}</Text>
+        </View>
+        <View style={styles.statRow}>
+          <Text style={[styles.statLabel, isDarkMode && styles.darkText]}>Focus Sessions:</Text>
+          <Text style={[styles.statValue, isDarkMode && styles.darkText]}>{focusSessions}</Text>
+        </View>
+      </View>
+      
+      {/* Gamification Actions */}
+      <View style={[styles.gamificationContainer, isDarkMode && styles.darkCard]}>
+        <Text style={[styles.sectionTitle, isDarkMode && styles.darkText]}>Earn Points</Text>
+        <TouchableOpacity style={styles.gamificationButton} onPress={completeTask}>
+          <Text style={styles.buttonText}>Complete a Task (+10 pts)</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.gamificationButton} onPress={startFocusSession}>
+          <Text style={styles.buttonText}>Start Focus Session (+20 pts)</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
-}
+};
+
+export default DashboardScreen;
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f5f5f5'
+  },
+  darkContainer: {
+    backgroundColor: '#121212'
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333'
+  },
+  darkText: {
+    color: '#fff'
+  },
+  statsContainer: {
+    marginBottom: 20,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3
+  },
+  statsTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#333'
+  },
+  statRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    marginBottom: 8
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  statLabel: {
+    fontSize: 16,
+    color: '#333'
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  statValue: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333'
   },
+  gamificationContainer: {
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#333'
+  },
+  gamificationButton: {
+    backgroundColor: '#2196F3',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 10
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    textAlign: 'center'
+  },
+  darkCard: {
+    backgroundColor: '#2b2b2b'
+  }
 });
