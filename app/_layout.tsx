@@ -1,69 +1,78 @@
+// app/_layout.tsx
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { Slot, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../config/firebaseConfig'; // Adjust this import path as needed
+import { auth } from '../config/firebaseConfig';
 import { useFonts } from 'expo-font';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
 
-  // Load custom fonts (already in your code)
+  // Load fonts
   const [fontsLoaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-
-  // Track Firebase auth state
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  // Hide splash screen when fonts are ready
-  useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-
-  // Listen for auth state changes
+  // Listen for Firebase auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      console.log('Auth state changed. Current user:', currentUser);
       setUser(currentUser);
       setAuthLoading(false);
     });
     return unsubscribe;
   }, []);
 
-  // While fonts or auth state are still loading, show a spinner
+  // When auth state is resolved, redirect using router.replace
+  useEffect(() => {
+    if (!authLoading) {
+      if (user) {
+        console.log('User exists, redirecting to tabs');
+        router.replace('/(tabs)/dashboard');
+      } else {
+        console.log('No user, redirecting to auth');
+        router.replace('/auth');
+      }
+    }
+  }, [user, authLoading, router]);
+
+  // Hide splash screen when fonts are loaded
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  // Instead of conditionally returning a loading indicator,
+  // always return the navigator. You can conditionally render
+  // a loading UI inside a screen if needed.
   if (!fontsLoaded || authLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        {/* Render a fallback loading UI as a screen */}
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" />
+        </View>
+      </ThemeProvider>
     );
   }
 
-  // If user is authenticated, show the (tabs) layout
-  // Otherwise, show the auth screen
+  // Once ready, render the navigator using <Slot />
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        {user ? (
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        ) : (
-          <Stack.Screen name="auth" options={{ headerShown: false }} />
-        )}
-        {/* Keep your existing not-found screen if desired */}
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <Slot />
       <StatusBar style="auto" />
     </ThemeProvider>
   );

@@ -7,6 +7,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -27,24 +28,43 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="index"
+        // home (dashboard) screen navigator 
+        name="dashboard"
         options={{
-          title: 'Home',
+          title: "",
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+      // Task manager screen navigator
+        name="task"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: "",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="checklist" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="task"
+      // Task manager screen navigator
+        name="session"
         options={{
-          title: 'Task',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="ticket.fill" color={color} />,
+          title: "",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="alarm" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+      // ADHD 101 (FAQa) about ADHD screen navigator
+        name="mindful"
+        options={{
+          title: "",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name ="person.circle" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+      // ADHD 101 (FAQa) about ADHD screen navigator
+        name="info"
+        options={{
+          title: "",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="info" color={color} />,
         }}
       />
     </Tabs>

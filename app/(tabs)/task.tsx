@@ -12,7 +12,24 @@ import {
   useColorScheme,
   Platform,
   ImageBackground,
+  Alert,
 } from 'react-native';
+import {
+  collection,
+  addDoc,
+  doc,
+  deleteDoc,
+  updateDoc,
+  writeBatch,
+  getDoc,
+  setDoc,
+  increment,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+} from 'firebase/firestore';
+import { db, auth } from '../../config/firebaseConfig'; // adjust if needed
 
 interface Task {
   id: string;
@@ -20,6 +37,8 @@ interface Task {
   description: string;
   category: string;
   completed: boolean;
+  createdAt?: any;
+  userId?: string;
 }
 
 export default function TaskManagerScreen() {
@@ -39,7 +58,32 @@ export default function TaskManagerScreen() {
     completed: false,
   });
 
-  const filteredTasks = tasks.filter((task) => task.category === selectedCategory);
+  useEffect(() => {
+    if (!auth.currentUser) return;
+    const q = query(
+      collection(db, 'tasks'),
+      where('userId', '==', auth.currentUser.uid),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const tasksFromFirestore = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data() as Task;
+          const { id: _, ...rest } = data;
+          return {
+            id: docSnap.id,
+            ...rest,
+          };
+        });
+        setTasks(tasksFromFirestore);
+      },
+      (error) => {
+        console.error('Error fetching tasks:', error);
+      }
+    );
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -47,62 +91,111 @@ export default function TaskManagerScreen() {
       if (now.getHours() === 0 && now.getMinutes() === 0) {
         resetTasks();
       }
-    }, 60000); // Check every minute
+    }, 60000);
     return () => clearInterval(interval);
   }, [tasks]);
 
-  const handleAddTask = (): void => {
+  const handleAddTask = async (): Promise<void> => {
     if (newTask.title.trim() === '') {
       setValidationError('Task title is required!');
       return;
     }
-
-    setTasks([
-      ...tasks,
-      {
-        id: Date.now().toString(),
-        title: newTask.title,
-        description: newTask.description,
+    if (newTask.title.length > 100) {
+      setValidationError('Task title should be under 100 characters.');
+      return;
+    }
+    if (newTask.description.length > 500) {
+      setValidationError('Task description should be under 500 characters.');
+      return;
+    }
+    try {
+      await addDoc(collection(db, 'tasks'), {
+        title: newTask.title.trim(),
+        description: newTask.description.trim(),
         category: newTask.category,
-        completed: false
-      },
-    ]);
-
-    setIsModalVisible(false);
-    setNewTask({ id: '', title: '', description: '', category: 'Daily', completed: false});
-    setValidationError(null);
+        completed: false,
+        userId: auth.currentUser?.uid,
+        createdAt: new Date(),
+      });
+      setIsModalVisible(false);
+      setNewTask({ id: '', title: '', description: '', category: 'Daily', completed: false });
+      setValidationError(null);
+      Alert.alert('Success', 'Task added to Firestore!');
+    } catch (error: any) {
+      Alert.alert('Error adding task', error.message);
+    }
   };
 
-  const handleDeleteTask = (taskId: string): void => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
+  const handleDeleteTask = async (taskId: string): Promise<void> => {
+    try {
+      await deleteDoc(doc(db, 'tasks', taskId));
+      Alert.alert('Deleted', 'Task has been removed.');
+    } catch (error: any) {
+      Alert.alert('Error deleting task', error.message);
+    }
   };
 
-  const toggleTaskCompletion = (taskId: string): void => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const updateUserStatsOnComplete = async (userId: string) => {
+    const statsRef = doc(db, 'userStats', userId);
+
+    const statsSnap = await getDoc(statsRef);
+    if (statsSnap.exists()) {
+      await updateDoc(statsRef, {
+        completedTasksCount: increment(1),
+        points: increment(10), // 10 points for each task
+      });
+    } else {
+      await setDoc(statsRef, {
+        completedTasksCount: 1,
+        points: 10,
+        focusSessions: 0,
+      });
+    }
   };
 
-  const resetTasks = (): void => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => ({ ...task, completed: false }))
-    );
+  const toggleTaskCompletion = async (taskId: string, completed: boolean): Promise<void> => {
+    try {
+      const taskRef = doc(db, 'tasks', taskId);
+      await updateDoc(taskRef, { completed: !completed });
+
+      if (!completed && auth.currentUser) {
+        await updateUserStatsOnComplete(auth.currentUser.uid);
+      }
+    } catch (error: any) {
+      Alert.alert('Error updating task', error.message);
+    }
   };
 
+  const resetTasks = async (): Promise<void> => {
+    try {
+      const batch = writeBatch(db);
+      tasks.forEach((task) => {
+        const taskRef = doc(db, 'tasks', task.id);
+        batch.update(taskRef, { completed: false });
+      });
+      await batch.commit();
+      console.log('Tasks reset successfully!');
+    } catch (error: any) {
+      Alert.alert('Error resetting tasks', error.message);
+    }
+  };
+
+  const filteredTasks = tasks.filter((task) => task.category === selectedCategory);
 
   return (
     <SafeAreaView style={styles.container}>
-       <ImageBackground
-        source={require('@/assets/images/fox.webp')} //background image
+      <ImageBackground
+        source={require('@/assets/images/fox.webp')}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
         <View style={styles.headerOverlay}>
-          <Text style={styles.headerTitle}>Task Manager</Text>
+          <Text style={[styles.headerTitle, isDarkMode && styles.headerTitleDark]}>
+            Task Manager
+          </Text>
         </View>
       </ImageBackground>
+
       <View style={styles.categoryContainer}>
         {['Daily', 'Weekly', 'Monthly'].map((category) => (
           <TouchableOpacity
@@ -131,33 +224,21 @@ export default function TaskManagerScreen() {
         renderItem={({ item }) => (
           <View style={styles.taskItem}>
             <View>
-              <Text
-                style={[
-                  styles.taskTitle,
-                  item.completed && styles.taskTitleCompleted,
-                ]}
-              >
+              <Text style={[styles.taskTitle, item.completed && styles.taskTitleCompleted]}>
                 {item.title}
               </Text>
-              <Text
-                style={[
-                  styles.taskDescription,
-                  item.completed && styles.taskDescriptionCompleted,
-                ]}
-              >
+              <Text style={[styles.taskDescription, item.completed && styles.taskDescriptionCompleted]}>
                 {item.description}
               </Text>
             </View>
-
             <TouchableOpacity
               style={styles.checkbox}
-              onPress={() => toggleTaskCompletion(item.id)}
+              onPress={() => toggleTaskCompletion(item.id, item.completed)}
             >
               <Text style={item.completed ? styles.checkboxChecked : styles.checkboxUnchecked}>
-              [✔]
+                [✔]
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => handleDeleteTask(item.id)}
@@ -166,15 +247,11 @@ export default function TaskManagerScreen() {
             </TouchableOpacity>
           </View>
         )}
-        
         ListEmptyComponent={<Text style={styles.emptyText}>No tasks available</Text>}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
       />
 
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setIsModalVisible(true)}
-      >
+      <TouchableOpacity style={styles.addButton} onPress={() => setIsModalVisible(true)}>
         <Text style={styles.addButtonText}>+ Add Task</Text>
       </TouchableOpacity>
 
@@ -185,11 +262,7 @@ export default function TaskManagerScreen() {
         >
           <View style={styles.modalContent}>
             <Text style={styles.modalSubtitle}>Add New Task</Text>
-
-            {validationError && (
-              <Text style={styles.validationError}>{validationError}</Text>
-            )}
-
+            {validationError && <Text style={styles.validationError}>{validationError}</Text>}
             <TextInput
               style={styles.input}
               placeholder="Task Title"
@@ -197,18 +270,14 @@ export default function TaskManagerScreen() {
               value={newTask.title}
               onChangeText={(text) => setNewTask({ ...newTask, title: text })}
             />
-
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Task Description"
               placeholderTextColor={isDarkMode ? '#aaa' : '#666'}
               value={newTask.description}
-              onChangeText={(text) =>
-                setNewTask({ ...newTask, description: text })
-              }
+              onChangeText={(text) => setNewTask({ ...newTask, description: text })}
               multiline={true}
             />
-
             <Text style={styles.modalSubtitle}>Select Category</Text>
             <View style={styles.modalCategoryContainer}>
               {['Daily', 'Weekly', 'Monthly'].map((category) => (
@@ -231,7 +300,6 @@ export default function TaskManagerScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.saveButton} onPress={handleAddTask}>
                 <Text style={styles.saveButtonText}>Save Task</Text>
@@ -261,22 +329,26 @@ const createStyles = (isDarkMode: boolean) =>
     },
     backgroundImage: {
       width: '100%',
-      height: 200, // Adjust to make it as "huge" as you want
-      justifyContent: 'flex-end', // Position the overlay at the bottom
+      height: 140, // Header height 
     },
     headerOverlay: {
-      backgroundColor: 'rgba(90, 90, 57, 0.5)', // Semi-transparent overlay
-      padding: 20,
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     headerTitle: {
-      color: '#fff',
-      fontSize: 24,
+      fontSize: 20,
       fontWeight: 'bold',
-      textAlign: 'center',
+      color: '#ffffff',
+    },
+    headerTitleDark: {
+      color: '#f0f0f0',
     },
     categoryContainer: {
       flexDirection: 'row',
       justifyContent: 'space-around',
+      marginTop: 20,
       marginBottom: 20,
       paddingHorizontal: 10,
     },
@@ -292,7 +364,6 @@ const createStyles = (isDarkMode: boolean) =>
     },
     categoryButtonActive: {
       backgroundColor: 'rgba(90, 90, 57, 0.5)',
-      //borderColor: '#6c63ff',
     },
     categoryText: {
       color: isDarkMode ? '#aaa' : '#000',

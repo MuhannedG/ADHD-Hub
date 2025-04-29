@@ -6,10 +6,10 @@ import {
   StyleSheet,
   TextInput,
   Image,
+  ImageBackground,
   useColorScheme,
   ScrollView
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const FocusSessionScreen: React.FC = () => {
   const [sessionType, setSessionType] = useState<'Single' | 'Loop'>('Single');
@@ -17,7 +17,8 @@ const FocusSessionScreen: React.FC = () => {
   const [breakTime, setBreakTime] = useState('10');     // Default break time in minutes
   const [isRunning, setIsRunning] = useState(false);
   const [remainingTime, setRemainingTime] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isBreak, setIsBreak] = useState(false); // Tracks if currently in break mode
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
@@ -29,13 +30,19 @@ const FocusSessionScreen: React.FC = () => {
           setRemainingTime((prev) => prev - 1);
         }, 1000);
       } else {
-        // If we're looping, alternate between sessionTime and breakTime
+        // In Loop mode, alternate between session and break times using isBreak state
         if (sessionType === 'Loop') {
-          setRemainingTime((prev) =>
-            prev === 0 ? parseInt(breakTime, 10) * 60 : parseInt(sessionTime, 10) * 60
-          );
+          if (isBreak) {
+            // Break ended, start a new session
+            setRemainingTime(parseInt(sessionTime, 10) * 60);
+            setIsBreak(false);
+          } else {
+            // Session ended, start break
+            setRemainingTime(parseInt(breakTime, 10) * 60);
+            setIsBreak(true);
+          }
         } else {
-          // If single session, just stop
+          // For a single session, stop the timer when time is up
           setIsRunning(false);
         }
       }
@@ -49,16 +56,18 @@ const FocusSessionScreen: React.FC = () => {
         clearTimeout(timerRef.current);
       }
     };
-  }, [isRunning, remainingTime, sessionType, sessionTime, breakTime]);
+  }, [isRunning, remainingTime, sessionType, sessionTime, breakTime, isBreak]);
 
   const startSession = () => {
     setRemainingTime(parseInt(sessionTime, 10) * 60);
+    setIsBreak(false);
     setIsRunning(true);
   };
 
   const stopSession = () => {
     setIsRunning(false);
     setRemainingTime(0);
+    setIsBreak(false);
   };
 
   const formatTime = (seconds: number) => {
@@ -69,20 +78,18 @@ const FocusSessionScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, isDarkMode && styles.darkContainer]}>
-      {/* Top Section / Header */}
-      <LinearGradient
-        colors={isDarkMode ? ['#2b2b2b', '#1b1b1b'] : ['#fbc2eb', '#a18cd1']}
-        style={styles.header}
+      {/* Header Section with ImageBackground */}
+      <ImageBackground
+        source={require('@/assets/images/fox.webp')}
+        style={styles.backgroundImage}
+        resizeMode="cover"
       >
-        {/* If you have a cute illustration, place it here */}
-        <Image
-          source={{ uri: 'https://via.placeholder.com/80' }} // Replace with your local or remote image
-          style={styles.headerImage}
-        />
-        <Text style={[styles.headerTitle, isDarkMode && styles.headerTitleDark]}>
-          Focus Session
-        </Text>
-      </LinearGradient>
+        <View style={styles.headerOverlay}>
+          <Text style={[styles.headerTitle, isDarkMode && styles.headerTitleDark]}>
+            Focus Session
+          </Text>
+        </View>
+      </ImageBackground>
 
       {/* Tabs Section */}
       <View style={styles.tabContainer}>
@@ -122,13 +129,12 @@ const FocusSessionScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Content Scroll (Inputs + Timer + Start/Stop) */}
+      {/* Content Section */}
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.card, isDarkMode && styles.darkCard]}>
-          {/* Session Time */}
           <Text style={[styles.label, isDarkMode && styles.darkLabel]}>
             Session Time (minutes):
           </Text>
@@ -139,7 +145,7 @@ const FocusSessionScreen: React.FC = () => {
             onChangeText={setSessionTime}
           />
 
-          {/* Break Time (Loop only) */}
+          {/* Show break time input only in Loop mode */}
           {sessionType === 'Loop' && (
             <>
               <Text style={[styles.label, isDarkMode && styles.darkLabel]}>
@@ -187,100 +193,118 @@ const FocusSessionScreen: React.FC = () => {
 
 export default FocusSessionScreen;
 
+// Define reusable constants for colors and spacing
+const COLORS = {
+  lightBackground: '#f5f5f5',
+  darkBackground: '#121212',
+  lightCard: '#fff',
+  darkCard: '#2b2b2b',
+  lightText: '#333',
+  darkText: '#fff',
+  headerText: '#ffffff',
+  headerTextDark: '#f0f0f0',
+  tabActive: '#4CAF50',
+  darkTab: '#2a2a2a',
+  startButton: '#4CAF50',
+  darkStartButton: '#1B5E20',
+  stopButton: '#E53935',
+  darkStopButton: '#B71C1C'
+};
+
+const SPACING = {
+  containerPadding: 16,
+  cardPadding: 16,
+  cardMarginBottom: 16,
+  headerHeight: 140,
+  headerBorderRadius: 20,
+  headerImageSize: 60,
+  tabPaddingVertical: 8,
+  tabPaddingHorizontal: 16,
+  buttonPaddingVertical: 12,
+  buttonPaddingHorizontal: 24,
+};
+
+const commonCardShadow = {
+  shadowColor: '#000',
+  shadowOpacity: 0.1,
+  shadowRadius: 5,
+  elevation: 3,
+};
+
 const styles = StyleSheet.create({
-  // Main container
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5'
+    backgroundColor: COLORS.lightBackground,
   },
   darkContainer: {
-    backgroundColor: '#121212'
+    backgroundColor: COLORS.darkBackground,
   },
-
-  // Header (Gradient + Image + Title)
-  header: {
+  backgroundImage: {
     width: '100%',
-    height: 140,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center'
+    height: SPACING.headerHeight,
   },
-  headerImage: {
-    width: 60,
-    height: 60,
-    marginBottom: 8
+  headerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff'
+    color: COLORS.headerText,
   },
   headerTitleDark: {
-    color: '#f0f0f0'
+    color: COLORS.headerTextDark,
   },
-
-  // Tabs (Single / Loop)
   tabContainer: {
     flexDirection: 'row',
     alignSelf: 'center',
-    marginTop: 16,
-    marginBottom: 8,
-    backgroundColor: '#ffffff',
+    marginVertical: 16,
+    backgroundColor: COLORS.lightCard,
     borderRadius: 25,
-    overflow: 'hidden'
-  },
-  darkTabButton: {
-    backgroundColor: '#2a2a2a'
+    overflow: 'hidden',
   },
   tabButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16
+    paddingVertical: SPACING.tabPaddingVertical,
+    paddingHorizontal: SPACING.tabPaddingHorizontal,
   },
   tabButtonActive: {
-    backgroundColor: '#4CAF50'
+    backgroundColor: COLORS.tabActive,
   },
   tabButtonText: {
-    color: '#333',
-    fontWeight: '600'
+    fontWeight: '600',
+    color: COLORS.lightText,
   },
   tabButtonTextActive: {
-    color: '#fff'
+    color: '#fff',
   },
-
-  // Content Scroll
+  darkTabButton: {
+    backgroundColor: COLORS.darkTab,
+  },
   scrollContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    alignItems: 'center'
+    padding: SPACING.containerPadding,
+    alignItems: 'center',
   },
-
-  // Card styling
   card: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.lightCard,
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3
+    padding: SPACING.cardPadding,
+    marginBottom: SPACING.cardMarginBottom,
+    ...commonCardShadow,
   },
   darkCard: {
-    backgroundColor: '#2b2b2b',
-    shadowColor: '#fff'
+    backgroundColor: COLORS.darkCard,
+    shadowColor: '#fff',
   },
-
-  // Labels + Inputs
   label: {
     fontSize: 16,
-    color: '#333',
-    marginBottom: 6
+    color: COLORS.lightText,
+    marginBottom: 6,
   },
   darkLabel: {
-    color: '#ffffff'
+    color: COLORS.darkText,
   },
   input: {
     width: '100%',
@@ -289,54 +313,50 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 8,
     marginBottom: 16,
-    backgroundColor: '#fff'
+    backgroundColor: COLORS.lightCard,
   },
   darkInput: {
     backgroundColor: '#444',
     borderColor: '#555',
-    color: '#fff'
+    color: COLORS.darkText,
   },
-
-  // Timer card & text
   timerCard: {
-    alignItems: 'center'
+    alignItems: 'center',
   },
   timer: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: '#333'
+    color: COLORS.lightText,
   },
   darkTimer: {
-    color: '#fff'
+    color: COLORS.darkText,
   },
-
-  // Button row + start/stop
   buttonRow: {
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   startButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8
+    backgroundColor: COLORS.startButton,
+    paddingVertical: SPACING.buttonPaddingVertical,
+    paddingHorizontal: SPACING.buttonPaddingHorizontal,
+    borderRadius: 8,
   },
   darkStartButton: {
-    backgroundColor: '#1B5E20'
+    backgroundColor: COLORS.darkStartButton,
   },
   stopButton: {
-    backgroundColor: '#E53935',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8
+    backgroundColor: COLORS.stopButton,
+    paddingVertical: SPACING.buttonPaddingVertical,
+    paddingHorizontal: SPACING.buttonPaddingHorizontal,
+    borderRadius: 8,
   },
   darkStopButton: {
-    backgroundColor: '#B71C1C'
+    backgroundColor: COLORS.darkStopButton,
   },
   startButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600'
-  }
+    fontWeight: '600',
+  },
 });
