@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, useColorScheme, Alert, ImageBackground } from 'react-native';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../../config/firebaseConfig';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
+import dayjs from 'dayjs'; // npm install dayjs
 
 const DashboardScreen: React.FC = () => {
   const colorScheme = useColorScheme();
@@ -10,7 +11,10 @@ const DashboardScreen: React.FC = () => {
 
   const [completedTasks, setCompletedTasks] = useState<number>(0);
   const [points, setPoints] = useState<number>(0);
-  const [focusSessions, setFocusSessions] = useState<number>(0); // Placeholder for future features
+  const [focusSessions, setFocusSessions] = useState<number>(0);
+
+  const [weeklyFocusSessions, setWeeklyFocusSessions] = useState<number>(0);
+  const [monthlyTasksCompleted, setMonthlyTasksCompleted] = useState<number>(0);
 
   const handleLogout = async () => {
     try {
@@ -20,22 +24,47 @@ const DashboardScreen: React.FC = () => {
     }
   };
 
+  // Helper functions for date checks
+  const getLastSunday = () => dayjs().day(0).format('YYYY-MM-DD');
+  const getFirstOfMonth = () => dayjs().startOf('month').format('YYYY-MM-DD');
+
   useEffect(() => {
     if (!auth.currentUser) return;
 
     const statsRef = doc(db, 'userStats', auth.currentUser.uid);
 
-    const unsubscribe = onSnapshot(statsRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const stats = docSnap.data();
-        setCompletedTasks(stats.completedTasksCount || 0);
-        setPoints(stats.points || 0);
-        setFocusSessions(stats.focusSessions || 0);
-      } else {
-        // If userStats doesn't exist yet, show 0s
-        setCompletedTasks(0);
-        setPoints(0);
-        setFocusSessions(0);
+    const unsubscribe = onSnapshot(statsRef, async (docSnap) => {
+      if (!docSnap.exists()) return;
+
+      const stats = docSnap.data();
+      setCompletedTasks(stats.completedTasksCount || 0);
+      setPoints(stats.points || 0);
+      setFocusSessions(stats.focusSessions || 0);
+
+      setWeeklyFocusSessions(stats.weeklyFocusSessions || 0);
+      setMonthlyTasksCompleted(stats.monthlyTasksCompleted || 0);
+
+      // --- AUTO RESET LOGIC ---
+      const weeklyReset = stats.weeklyReset || '';
+      const monthlyReset = stats.monthlyReset || '';
+
+      const currentSunday = getLastSunday();
+      const currentMonthStart = getFirstOfMonth();
+
+      const updates: any = {};
+
+      if (weeklyReset !== currentSunday) {
+        updates.weeklyFocusSessions = 0;
+        updates.weeklyReset = currentSunday;
+      }
+
+      if (monthlyReset !== currentMonthStart) {
+        updates.monthlyTasksCompleted = 0;
+        updates.monthlyReset = currentMonthStart;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        await updateDoc(statsRef, updates);
       }
     });
 
@@ -44,9 +73,9 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, isDarkMode && styles.darkContainer]}>
-      {/* Header with ImageBackground */}
+      {/* Header */}
       <ImageBackground
-        source={require('@/assets/images/fox.webp')}
+        source={require('@/assets/images/dashboard-image.png')}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
@@ -71,6 +100,35 @@ const DashboardScreen: React.FC = () => {
         <View style={styles.statRow}>
           <Text style={[styles.statLabel, isDarkMode && styles.darkText]}>Focus Sessions:</Text>
           <Text style={[styles.statValue, isDarkMode && styles.darkText]}>{focusSessions}</Text>
+        </View>
+      </View>
+
+      {/* Challenges Section */}
+      <View style={[styles.challengesContainer, isDarkMode && styles.darkCard]}>
+        <Text style={[styles.statsTitle, isDarkMode && styles.darkText]}>Challenges</Text>
+
+        <View style={styles.challengeBox}>
+          <Text style={[styles.challengeTitle, isDarkMode && styles.darkText]}>
+            🏆 Weekly Challenge
+          </Text>
+          <Text style={[styles.challengeDescription, isDarkMode && styles.darkText]}>
+            Complete 5 focus sessions this week!
+          </Text>
+          <Text style={[styles.progressText, isDarkMode && styles.darkText]}>
+            Progress: {weeklyFocusSessions} / 5
+          </Text>
+        </View>
+
+        <View style={styles.challengeBox}>
+          <Text style={[styles.challengeTitle, isDarkMode && styles.darkText]}>
+            🏅 Monthly Challenge
+          </Text>
+          <Text style={[styles.challengeDescription, isDarkMode && styles.darkText]}>
+            Finish 20 tasks before the month ends!
+          </Text>
+          <Text style={[styles.progressText, isDarkMode && styles.darkText]}>
+            Progress: {monthlyTasksCompleted} / 20
+          </Text>
         </View>
       </View>
 
@@ -146,6 +204,38 @@ const styles = StyleSheet.create({
   },
   darkText: {
     color: '#fff',
+  },
+  challengesContainer: {
+    margin: 16,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  challengeBox: {
+    marginBottom: 12,
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  challengeTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#333',
+  },
+  challengeDescription: {
+    fontSize: 14,
+    color: '#555',
+  },
+  progressText: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: '#555',
+    marginTop: 4,
   },
   logoutButton: {
     marginTop: 20,

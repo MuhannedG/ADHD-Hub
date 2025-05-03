@@ -160,7 +160,7 @@ export default function TabTwoScreen() {
   ];
 
   const [expanded, setExpanded] = useState<boolean[]>(
-    questions.map(() => true)
+    questions.map(() => false)
   );
   const toggle = (i: number) =>
     setExpanded((prev) => {
@@ -172,7 +172,7 @@ export default function TabTwoScreen() {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('@/assets/images/fox.webp')}
+        source={require('@/assets/images/info-image.png')}
         style={styles.backgroundImage}
         resizeMode="cover"
       >

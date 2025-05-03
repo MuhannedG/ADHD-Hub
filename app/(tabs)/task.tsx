@@ -185,7 +185,7 @@ export default function TaskManagerScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ImageBackground
-        source={require('@/assets/images/fox.webp')}
+        source={require('@/assets/images/Task-image.png')}
         style={styles.backgroundImage}
         resizeMode="cover"
       >

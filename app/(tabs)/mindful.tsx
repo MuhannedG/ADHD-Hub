@@ -100,7 +100,7 @@ export default function MindfulnessScreen(): JSX.Element {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('@/assets/images/fox.webp')}
+        source={require('@/assets/images/Wellbeing-image.png')}
         style={styles.backgroundImage}
         resizeMode="cover"
       >
@@ -118,7 +118,7 @@ export default function MindfulnessScreen(): JSX.Element {
             style={styles.cardHeader}
             onPress={() => setBreathingExpanded(!breathingExpanded)}
           >
-            <Text style={styles.cardHeaderText}>Mindful Breathing (Box Breathing)</Text>
+            <Text style={styles.cardHeaderText}>Mindful Breathing</Text>
             <Text style={styles.collapseIcon}>{breathingExpanded ? '▲' : '▼'}</Text>
           </TouchableOpacity>
           {breathingExpanded && (
