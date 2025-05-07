@@ -25,135 +25,107 @@ export default function TabTwoScreen() {
 
   const questions: Question[] = [
     {
-      title: 'File-based routing',
+      title: 'What is ADHD?',
       content: (
         <>
-          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-            This app has two screens:{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              app/(tabs)/index.tsx
-            </ThemedText>{' '}
-            and{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              app/(tabs)/explore.tsx
-            </ThemedText>.
-          </ThemedText>
-          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-            The layout file in{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              app/(tabs)/_layout.tsx
-            </ThemedText>{' '}
-            sets up the tab navigator.
-          </ThemedText>
-          <ExternalLink href="https://docs.expo.dev/router/introduction">
-            <ThemedText type="link" style={styles.linkText}>
-              Learn more
-            </ThemedText>
-          </ExternalLink>
-        </>
-      ),
-    },
-    {
-      title: 'Android, iOS, and web support',
-      content: (
         <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-            w
-          </ThemedText>{' '}
-          in the terminal running this project.
+          ADHD is a neurodevelopmental disorder characterized by symptoms such as inattention, hyperactivity, and impulsivity. These symptoms can interfere with daily functioning and development.
         </ThemedText>
-      ),
-    },
-    {
-      title: 'Images',
-      content: (
-        <>
-          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-            For static images, you can use the{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              @2x
-            </ThemedText>{' '}
-            and{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              @3x
-            </ThemedText>{' '}
-            suffixes to provide files for different screen densities.
-          </ThemedText>
-          <ExternalLink href="https://reactnative.dev/docs/images">
+        <ExternalLink href="https://www.health.com/adhd-overview-7187317">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>
           </ExternalLink>
         </>
       ),
-    },
+  },
     {
-      title: 'Custom fonts',
+      title: 'How is ADHD Diagnosed?',
       content: (
         <>
-          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-            Open{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              app/_layout.tsx
-            </ThemedText>{' '}
-            to see how to load{' '}
-            <ThemedText style={[styles.collapsibleTextBase, { fontFamily: 'SpaceMono' }, styles.text]}>
-              custom fonts such as this one.
-            </ThemedText>
-          </ThemedText>
-          <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
+        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+          Diagnosis involves a comprehensive evaluation by a qualified healthcare professional, considering behavioral symptoms, medical history, and input from multiple sources like parents or teachers. Symptoms must be present in multiple settings and have appeared before the age of 12.
+        </ThemedText>
+        <ExternalLink href="https://adhdireland.ie/general-information/diagnosis/">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>
           </ExternalLink>
         </>
       ),
-    },
+  },
     {
-      title: 'Light and dark mode components',
+      title: 'What Are The Common Symptoms of ADHD?',
       content: (
         <>
-          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-            This template has light/dark mode support. The{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              useColorScheme()
-            </ThemedText>{' '}
-            hook lets you inspect what the user's current color scheme is and adjust UI colors.
-          </ThemedText>
-          <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
+        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+          Common symptoms include difficulty sustaining attention, forgetfulness, fidgeting, impulsivity, and difficulty organizing tasks. Symptoms can vary between individuals and may change over time.
+        </ThemedText>
+        <ExternalLink href="https://www.verywellhealth.com/what-is-inattentive-adhd-5203366">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>
           </ExternalLink>
         </>
       ),
-    },
+  },
+  {
+    title: 'What Causes ADHD?',
+    content: (
+      <>
+      <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+        The exact cause of ADHD is unknown, but research suggests a combination of genetic, environmental, and neurological factors contribute to its development.
+      </ThemedText>
+      <ExternalLink href="https://www.verywellmind.com/what-causes-adhd-20465">
+          <ThemedText type="link" style={styles.linkText}>
+            Learn more
+          </ThemedText>
+        </ExternalLink>
+      </>
+    ),
+  },
     {
-      title: 'Animations',
+      title: 'Can Lifestyle Changes Help Manage ADHD Symptoms?',
       content: (
         <>
-          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-            This template includes an example of an animated component. The{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              components/HelloWave.tsx
-            </ThemedText>{' '}
-            component uses{' '}
-            <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-              react-native-reanimated
-            </ThemedText>{' '}
-            for a waving-animation.
-          </ThemedText>
-          {Platform.select({
-            ios: (
-              <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-                The Parallax header is provided by{' '}
-                <ThemedText type="defaultSemiBold" style={[styles.emphasisText, styles.text]}>
-                  ParallaxScrollView
-                </ThemedText>.
-              </ThemedText>
-            ),
-          })}
+        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+          Yes, regular exercise, a healthy diet, structured routines, and adequate sleep can help manage symptoms. Mindfulness and organizational strategies may also be beneficial.
+        </ThemedText>
+        <ExternalLink href="https://www.verywellhealth.com/what-is-inattentive-adhd-5203366">
+            <ThemedText type="link" style={styles.linkText}>
+              Learn more
+            </ThemedText>
+          </ExternalLink>
+        </>
+      ),
+  },
+    {
+      title: 'Can adults be diagnosed with ADHD?',
+      content: (
+        <>
+        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+          Yes, adults can be diagnosed with ADHD. Symptoms may have been present in childhood but went unrecognized. Adult diagnosis involves evaluating current symptoms and their impact on daily life.
+        </ThemedText>
+        <ExternalLink href="https://adhdireland.ie/for-adults/adhd-in-adults/">
+            <ThemedText type="link" style={styles.linkText}>
+              Learn more
+            </ThemedText>
+          </ExternalLink>
+        </>
+      ),
+  },
+    {
+      title: 'How is ADHD Treated?',
+      content: (
+        <>
+        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+          Treatment often includes a combination of medication, behavioral therapy, counseling, and educational support. The approach depends on the individual's age, symptoms, and specific needs.
+        </ThemedText>
+        <ExternalLink href="https://adhdireland.ie/general-information/treatment/">
+            <ThemedText type="link" style={styles.linkText}>
+              Learn more
+            </ThemedText>
+          </ExternalLink>
         </>
       ),
     },

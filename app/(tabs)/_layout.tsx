@@ -8,6 +8,7 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -56,7 +57,7 @@ export default function TabLayout() {
         name="mindful"
         options={{
           title: "",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name ="person.circle" color={color} />,
+          tabBarIcon: ({ color }) => <MaterialCommunityIcons size={28} name="hands-pray" color={color} />,
         }}
       />
       <Tabs.Screen
