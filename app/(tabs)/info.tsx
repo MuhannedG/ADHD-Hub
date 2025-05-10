@@ -13,115 +13,118 @@ import {
 import { ThemedText } from '@/components/ThemedText';
 import { ExternalLink } from '@/components/ExternalLink';
 
+// Questions interface types declaration
 interface Question {
   title: string;
   content: JSX.Element | JSX.Element[];
 }
 
-export default function TabTwoScreen() {
+//React compenet and original theme (Dark or Light) handling
+export default function InfoScreen() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const styles = createStyles(isDarkMode);
 
+  // Questions Array of type Question to store the FAQs
   const questions: Question[] = [
     {
       title: 'What is ADHD?',
       content: (
         <>
-        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-          ADHD is a neurodevelopmental disorder characterized by symptoms such as inattention, hyperactivity, and impulsivity. These symptoms can interfere with daily functioning and development.
-        </ThemedText>
-        <ExternalLink href="https://www.health.com/adhd-overview-7187317">
+          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+            ADHD is a neurodevelopmental disorder characterized by symptoms such as inattention, hyperactivity, and impulsivity. These symptoms can interfere with daily functioning and development.
+          </ThemedText>
+          <ExternalLink href="https://www.health.com/adhd-overview-7187317">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>
           </ExternalLink>
         </>
       ),
-  },
+    },
     {
       title: 'How is ADHD Diagnosed?',
       content: (
         <>
-        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-          Diagnosis involves a comprehensive evaluation by a qualified healthcare professional, considering behavioral symptoms, medical history, and input from multiple sources like parents or teachers. Symptoms must be present in multiple settings and have appeared before the age of 12.
-        </ThemedText>
-        <ExternalLink href="https://adhdireland.ie/general-information/diagnosis/">
+          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+            Diagnosis involves a comprehensive evaluation by a qualified healthcare professional, considering behavioral symptoms, medical history, and input from multiple sources like parents or teachers. Symptoms must be present in multiple settings and have appeared before the age of 12.
+          </ThemedText>
+          <ExternalLink href="https://adhdireland.ie/general-information/diagnosis/">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>
           </ExternalLink>
         </>
       ),
-  },
+    },
     {
       title: 'What Are The Common Symptoms of ADHD?',
       content: (
         <>
-        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-          Common symptoms include difficulty sustaining attention, forgetfulness, fidgeting, impulsivity, and difficulty organizing tasks. Symptoms can vary between individuals and may change over time.
-        </ThemedText>
-        <ExternalLink href="https://www.verywellhealth.com/what-is-inattentive-adhd-5203366">
+          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+            Common symptoms include difficulty sustaining attention, forgetfulness, fidgeting, impulsivity, and difficulty organizing tasks. Symptoms can vary between individuals and may change over time.
+          </ThemedText>
+          <ExternalLink href="https://www.verywellhealth.com/what-is-inattentive-adhd-5203366">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>
           </ExternalLink>
         </>
       ),
-  },
-  {
-    title: 'What Causes ADHD?',
-    content: (
-      <>
-      <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-        The exact cause of ADHD is unknown, but research suggests a combination of genetic, environmental, and neurological factors contribute to its development.
-      </ThemedText>
-      <ExternalLink href="https://www.verywellmind.com/what-causes-adhd-20465">
-          <ThemedText type="link" style={styles.linkText}>
-            Learn more
+    },
+    {
+      title: 'What Causes ADHD?',
+      content: (
+        <>
+          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+            The exact cause of ADHD is unknown, but research suggests a combination of genetic, environmental, and neurological factors contribute to its development.
           </ThemedText>
-        </ExternalLink>
-      </>
-    ),
-  },
+          <ExternalLink href="https://www.verywellmind.com/what-causes-adhd-20465">
+            <ThemedText type="link" style={styles.linkText}>
+              Learn more
+            </ThemedText>
+          </ExternalLink>
+        </>
+      ),
+    },
     {
       title: 'Can Lifestyle Changes Help Manage ADHD Symptoms?',
       content: (
         <>
-        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-          Yes, regular exercise, a healthy diet, structured routines, and adequate sleep can help manage symptoms. Mindfulness and organizational strategies may also be beneficial.
-        </ThemedText>
-        <ExternalLink href="https://www.verywellhealth.com/what-is-inattentive-adhd-5203366">
+          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+            Yes, regular exercise, a healthy diet, structured routines, and adequate sleep can help manage symptoms. Mindfulness and organizational strategies may also be beneficial.
+          </ThemedText>
+          <ExternalLink href="https://www.verywellhealth.com/what-is-inattentive-adhd-5203366">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>
           </ExternalLink>
         </>
       ),
-  },
+    },
     {
       title: 'Can adults be diagnosed with ADHD?',
       content: (
         <>
-        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-          Yes, adults can be diagnosed with ADHD. Symptoms may have been present in childhood but went unrecognized. Adult diagnosis involves evaluating current symptoms and their impact on daily life.
-        </ThemedText>
-        <ExternalLink href="https://adhdireland.ie/for-adults/adhd-in-adults/">
+          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+            Yes, adults can be diagnosed with ADHD. Symptoms may have been present in childhood but went unrecognized. Adult diagnosis involves evaluating current symptoms and their impact on daily life.
+          </ThemedText>
+          <ExternalLink href="https://adhdireland.ie/for-adults/adhd-in-adults/">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>
           </ExternalLink>
         </>
       ),
-  },
+    },
     {
       title: 'How is ADHD Treated?',
       content: (
         <>
-        <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
-          Treatment often includes a combination of medication, behavioral therapy, counseling, and educational support. The approach depends on the individual's age, symptoms, and specific needs.
-        </ThemedText>
-        <ExternalLink href="https://adhdireland.ie/general-information/treatment/">
+          <ThemedText style={[styles.collapsibleTextBase, styles.text]}>
+            Treatment often includes a combination of medication, behavioral therapy, counseling, and educational support. The approach depends on the individual's age, symptoms, and specific needs.
+          </ThemedText>
+          <ExternalLink href="https://adhdireland.ie/general-information/treatment/">
             <ThemedText type="link" style={styles.linkText}>
               Learn more
             </ThemedText>

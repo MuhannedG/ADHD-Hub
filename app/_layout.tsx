@@ -14,6 +14,7 @@ import { useFonts } from 'expo-font';
 
 SplashScreen.preventAutoHideAsync();
 
+// main fucntion declaration
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();

@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
-
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
@@ -22,7 +21,6 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
           },
           default: {},
@@ -37,7 +35,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-      // Task manager screen navigator
+        // Task manager screen navigator
         name="task"
         options={{
           title: "",
@@ -45,7 +43,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-      // Task manager screen navigator
+        // Focus Session screen navigator
         name="session"
         options={{
           title: "",
@@ -53,7 +51,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-      // ADHD 101 (FAQa) about ADHD screen navigator
+        // Mindfulness screen navigator
         name="mindful"
         options={{
           title: "",
@@ -61,7 +59,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-      // ADHD 101 (FAQa) about ADHD screen navigator
+        // ADHD 101 (FAQa) about ADHD screen navigator
         name="info"
         options={{
           title: "",

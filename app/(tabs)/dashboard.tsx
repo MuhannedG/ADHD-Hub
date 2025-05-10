@@ -3,19 +3,19 @@ import { View, Text, TouchableOpacity, StyleSheet, useColorScheme, Alert, ImageB
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../../config/firebaseConfig';
 import { doc, onSnapshot, updateDoc, serverTimestamp } from 'firebase/firestore';
-import dayjs from 'dayjs'; // npm install dayjs
+import dayjs from 'dayjs';
 
+// Main class and variables declarations
 const DashboardScreen: React.FC = () => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
-
   const [completedTasks, setCompletedTasks] = useState<number>(0);
   const [points, setPoints] = useState<number>(0);
   const [focusSessions, setFocusSessions] = useState<number>(0);
-
   const [weeklyFocusSessions, setWeeklyFocusSessions] = useState<number>(0);
   const [monthlyTasksCompleted, setMonthlyTasksCompleted] = useState<number>(0);
 
+  // logout function
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -24,10 +24,11 @@ const DashboardScreen: React.FC = () => {
     }
   };
 
-  // Helper functions for date checks
+  // Weekly/Monthly resets functions using dayjs library
   const getLastSunday = () => dayjs().day(0).format('YYYY-MM-DD');
   const getFirstOfMonth = () => dayjs().startOf('month').format('YYYY-MM-DD');
 
+  // Useeffect hook that reads the user's stats in real time from the Firestore Database and updates it
   useEffect(() => {
     if (!auth.currentUser) return;
 
@@ -44,7 +45,7 @@ const DashboardScreen: React.FC = () => {
       setWeeklyFocusSessions(stats.weeklyFocusSessions || 0);
       setMonthlyTasksCompleted(stats.monthlyTasksCompleted || 0);
 
-      // --- AUTO RESET LOGIC ---
+      // Weekly/Monthly reset logic for the challenges
       const weeklyReset = stats.weeklyReset || '';
       const monthlyReset = stats.monthlyReset || '';
 
@@ -73,7 +74,7 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <View style={[styles.container, isDarkMode && styles.darkContainer]}>
-      {/* Header */}
+      {/*Header*/}
       <ImageBackground
         source={require('@/assets/images/dashboard-image.png')}
         style={styles.backgroundImage}
@@ -142,7 +143,7 @@ const DashboardScreen: React.FC = () => {
 
 export default DashboardScreen;
 
-// --- Styles ---
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -8,20 +8,18 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-   
     "ios": {
       "bundleIdentifier": "com.mycompany.adhdhubi",
       "supportsTablet": true
     },
-    
     "android": {
       "bundleIdentifier": "com.mycompany.adhdhuba",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.mycompany.adhdhubi"
     },
-   
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -38,7 +36,6 @@
           "backgroundColor": "#ffffff"
         }
       ],
-
       [
         "expo-build-properties",
         {
@@ -49,7 +46,6 @@
             "googleServicesFile": "./android/google-services.json"
           }
         }
-
       ]
     ],
     "experiments": {

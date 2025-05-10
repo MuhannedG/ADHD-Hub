@@ -12,11 +12,13 @@ import {
 import { doc, updateDoc, increment } from 'firebase/firestore';
 import { auth, db } from '../../config/firebaseConfig';
 
+// main function and theme handling of the current device
 export default function FocusSessionScreen() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const styles = createStyles(isDarkMode);
 
+  // Session type layout variables
   const [sessionType, setSessionType] = useState<'Single' | 'Loop'>('Single');
   const [sessionTime, setSessionTime] = useState('90');
   const [breakTime, setBreakTime] = useState('10');
@@ -25,6 +27,7 @@ export default function FocusSessionScreen() {
   const [isBreak, setIsBreak] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  //adding focus sessions to Firestore database 
   const logFocusSession = async () => {
     if (!auth.currentUser) return;
     const statsRef = doc(db, 'userStats', auth.currentUser.uid);
@@ -39,6 +42,7 @@ export default function FocusSessionScreen() {
     }
   };
 
+  // focus sessions timers logic for single and loop 
   useEffect(() => {
     if (isRunning) {
       if (remainingTime > 0) {
@@ -68,6 +72,7 @@ export default function FocusSessionScreen() {
     };
   }, [isRunning, remainingTime, sessionType, sessionTime, breakTime, isBreak]);
 
+  // timing logic in minutes
   const startSession = () => {
     setRemainingTime(parseInt(sessionTime) * 60);
     setIsBreak(false);
@@ -172,6 +177,7 @@ export default function FocusSessionScreen() {
   );
 }
 
+// Style sheet 
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     container: {

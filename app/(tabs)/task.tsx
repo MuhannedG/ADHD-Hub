@@ -31,6 +31,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '../../config/firebaseConfig'; // adjust if needed
 
+// interface declaration and its compenents variables
 interface Task {
   id: string;
   title: string;
@@ -41,11 +42,13 @@ interface Task {
   userId?: string;
 }
 
+// main funciton and theme handling
 export default function TaskManagerScreen() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const styles = createStyles(isDarkMode);
 
+  // Daily tasks variables and layout
   const [selectedCategory, setSelectedCategory] = useState<string>('Daily');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -58,6 +61,7 @@ export default function TaskManagerScreen() {
     completed: false,
   });
 
+  // useEffect to fetch stored data form the firestore database
   useEffect(() => {
     if (!auth.currentUser) return;
     const q = query(
@@ -95,6 +99,7 @@ export default function TaskManagerScreen() {
     return () => clearInterval(interval);
   }, [tasks]);
 
+  // Task addition logic (including valdiating input, saving to database, and updating UI)
   const handleAddTask = async (): Promise<void> => {
     if (newTask.title.trim() === '') {
       setValidationError('Task title is required!');
@@ -126,6 +131,7 @@ export default function TaskManagerScreen() {
     }
   };
 
+  // Task deletion logic 
   const handleDeleteTask = async (taskId: string): Promise<void> => {
     try {
       await deleteDoc(doc(db, 'tasks', taskId));
@@ -135,6 +141,7 @@ export default function TaskManagerScreen() {
     }
   };
 
+  // Updating tasks' score/points logic 
   const updateUserStatsOnComplete = async (userId: string) => {
     const statsRef = doc(db, 'userStats', userId);
 
@@ -153,6 +160,7 @@ export default function TaskManagerScreen() {
     }
   };
 
+  // task completed logic and updated UI to reflect the compeletion
   const toggleTaskCompletion = async (taskId: string, completed: boolean): Promise<void> => {
     try {
       const taskRef = doc(db, 'tasks', taskId);
@@ -166,6 +174,7 @@ export default function TaskManagerScreen() {
     }
   };
 
+  // resets tasks to uncolmpleted state
   const resetTasks = async (): Promise<void> => {
     try {
       const batch = writeBatch(db);
@@ -182,6 +191,7 @@ export default function TaskManagerScreen() {
 
   const filteredTasks = tasks.filter((task) => task.category === selectedCategory);
 
+  // Returns the full UI design of the tasks tab to the user (includes, task list, catogeroy selector, modal form, and interactions)
   return (
     <SafeAreaView style={styles.container}>
       <ImageBackground
@@ -321,6 +331,7 @@ export default function TaskManagerScreen() {
   );
 }
 
+// Style sheet
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     container: {

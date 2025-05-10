@@ -12,48 +12,55 @@ import {
   Animated,
   Easing,
   LayoutChangeEvent,
+  Button,
 } from 'react-native';
+import SignatureCanvas from 'react-native-signature-canvas';
+import { Dimensions } from 'react-native';
 
+// main fucntion that uses JSX elements and variables declaration for theme (white/dark) handling 
 export default function MindfulnessScreen(): JSX.Element {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const styles = createStyles(isDarkMode);
 
+  // expnadable sections for mindfulness tab variables
   const [breathingExpanded, setBreathingExpanded] = useState(false);
   const [groundingExpanded, setGroundingExpanded] = useState(false);
   const [journalingExpanded, setJournalingExpanded] = useState(false);
   const [creativeExpanded, setCreativeExpanded] = useState(false);
 
+  // box breahting initail animation logic varialbes
   const inhale = 4000;
   const hold = 4000;
   const exhale = 4000;
   const hold2 = 4000;
 
-  const dotSize = 12;
-
+  const dotSize = 16;
   const x = useRef(new Animated.Value(0)).current;
   const y = useRef(new Animated.Value(0)).current;
   const [breathingPhase, setBreathingPhase] = useState('');
-
   const [boxWidth, setBoxWidth] = useState(0);
   const [boxHeight, setBoxHeight] = useState(0);
 
+  const canvasRef = useRef<any>(null);
+
+  // box breathing animation logic
   useEffect(() => {
-    if (boxWidth === 0 || boxHeight === 0) return; // Wait for layout
+    if (boxWidth === 0 || boxHeight === 0) return;
 
     const maxX = boxWidth - dotSize;
     const maxY = boxHeight - dotSize;
 
     const phases = [
-      { x: maxX, y: 0, duration: inhale, label: 'Breathe In' },  // Move right
-      { x: maxX, y: maxY, duration: hold, label: 'Hold' },       // Move down
-      { x: 0, y: maxY, duration: exhale, label: 'Breathe Out' }, // Move left
-      { x: 0, y: 0, duration: hold2, label: 'Hold' },            // Move up
+      { x: maxX, y: 0, duration: inhale, label: 'Breathe In' },
+      { x: maxX, y: maxY, duration: hold, label: 'Hold' },
+      { x: 0, y: maxY, duration: exhale, label: 'Breathe Out' },
+      { x: 0, y: 0, duration: hold2, label: 'Hold' },
     ];
 
     let index = 0;
 
-    function animate() {
+    const animate = () => {
       const { x: toX, y: toY, duration, label } = phases[index];
       setBreathingPhase(label);
       Animated.parallel([
@@ -73,14 +80,17 @@ export default function MindfulnessScreen(): JSX.Element {
         index = (index + 1) % phases.length;
         animate();
       });
-    }
+    };
 
+    x.setValue(0);
+    y.setValue(0);
     animate();
-  }, [boxWidth, boxHeight, x, y]);
+  }, [boxWidth, boxHeight]);
 
   const [gratitudeText, setGratitudeText] = useState('');
   const [savedEntries, setSavedEntries] = useState<string[]>([]);
 
+  // sotring the gratitude entries into the database
   const handleSaveGratitude = () => {
     if (gratitudeText.trim() === '') {
       Alert.alert('Empty Entry', 'Please enter something you are grateful for.');
@@ -112,7 +122,7 @@ export default function MindfulnessScreen(): JSX.Element {
       </ImageBackground>
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        {/* Mindful Breathing Section */}
+        {/* Mindful Breathing */}
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.cardHeader}
@@ -123,6 +133,9 @@ export default function MindfulnessScreen(): JSX.Element {
           </TouchableOpacity>
           {breathingExpanded && (
             <View style={styles.cardContent}>
+              <Text style={styles.cardContentText}>
+                Follow the dot around the box: inhale, hold, exhale, hold.
+              </Text>
               <Text style={styles.boxLabel}>{breathingPhase}</Text>
               <View style={styles.boxContainer} onLayout={onBoxLayout}>
                 <Animated.View
@@ -132,20 +145,20 @@ export default function MindfulnessScreen(): JSX.Element {
                       width: dotSize,
                       height: dotSize,
                       borderRadius: dotSize / 2,
-                      backgroundColor: isDarkMode ? '#fff' : '#333',
+                      backgroundColor: isDarkMode ? '#00f' : '#000',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
                       transform: [{ translateX: x }, { translateY: y }],
                     },
                   ]}
                 />
               </View>
-              <Text style={styles.cardContentText}>
-                Follow the dot around the box: inhale, hold, exhale, hold.
-              </Text>
             </View>
           )}
         </View>
 
-        {/* Grounding Techniques Section */}
+        {/* Grounding Techniques */}
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.cardHeader}
@@ -156,7 +169,7 @@ export default function MindfulnessScreen(): JSX.Element {
           </TouchableOpacity>
           {groundingExpanded && (
             <View style={styles.cardContent}>
-              <Text style={styles.cardContentText}>Use your senses to ground yourself in the present moment:</Text>
+              <Text style={styles.cardContentText}>Use your senses to ground yourself:</Text>
               <Text style={styles.cardContentText}>• 5 things you can see</Text>
               <Text style={styles.cardContentText}>• 4 things you can touch</Text>
               <Text style={styles.cardContentText}>• 3 things you can hear</Text>
@@ -166,7 +179,7 @@ export default function MindfulnessScreen(): JSX.Element {
           )}
         </View>
 
-        {/* Journaling Section */}
+        {/* Journaling */}
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.cardHeader}
@@ -177,7 +190,9 @@ export default function MindfulnessScreen(): JSX.Element {
           </TouchableOpacity>
           {journalingExpanded && (
             <View style={styles.cardContent}>
-              <Text style={styles.cardContentText}>List something you're grateful for today to cultivate positivity.</Text>
+              <Text style={styles.cardContentText}>
+                List something you're grateful for today.
+              </Text>
               <TextInput
                 style={styles.input}
                 placeholder="What are you grateful for?"
@@ -200,7 +215,7 @@ export default function MindfulnessScreen(): JSX.Element {
           )}
         </View>
 
-        {/* Creative Expression Section */}
+        {/* Creative Expression with Signature Canvas */}
         <View style={styles.card}>
           <TouchableOpacity
             style={styles.cardHeader}
@@ -211,7 +226,9 @@ export default function MindfulnessScreen(): JSX.Element {
           </TouchableOpacity>
           {creativeExpanded && (
             <View style={styles.cardContent}>
-              <Text style={styles.cardContentText}>Take 5-10 minutes to doodle, draw, or write something to release tension.</Text>
+              <Text style={styles.cardContentText}>
+                Spend a few minutes drawing, doodling, or free-writing.
+              </Text>
             </View>
           )}
         </View>
@@ -220,6 +237,7 @@ export default function MindfulnessScreen(): JSX.Element {
   );
 }
 
+// style sheet
 function createStyles(dark: boolean) {
   return StyleSheet.create({
     container: {
@@ -287,12 +305,12 @@ function createStyles(dark: boolean) {
       borderWidth: 4,
       borderColor: '#333',
       position: 'relative',
-      justifyContent: 'flex-start',
-      alignItems: 'flex-start',
       marginBottom: 16,
     },
     dot: {
       position: 'absolute',
+      top: 0,
+      left: 0,
     },
     boxLabel: {
       fontSize: 18,
