@@ -145,7 +145,7 @@ export default function MindfulnessScreen(): JSX.Element {
                       width: dotSize,
                       height: dotSize,
                       borderRadius: dotSize / 2,
-                      backgroundColor: isDarkMode ? '#00f' : '#000',
+                      backgroundColor: isDarkMode ? '#fff' : '#fff',
                       position: 'absolute',
                       top: 0,
                       left: 0,

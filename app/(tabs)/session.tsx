@@ -9,16 +9,14 @@ import {
   ImageBackground,
   useColorScheme,
 } from 'react-native';
-import { doc, updateDoc, increment } from 'firebase/firestore';
+import { doc, updateDoc, increment, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../config/firebaseConfig';
 
-// main function and theme handling of the current device
 export default function FocusSessionScreen() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const styles = createStyles(isDarkMode);
 
-  // Session type layout variables
   const [sessionType, setSessionType] = useState<'Single' | 'Loop'>('Single');
   const [sessionTime, setSessionTime] = useState('90');
   const [breakTime, setBreakTime] = useState('10');
@@ -27,22 +25,33 @@ export default function FocusSessionScreen() {
   const [isBreak, setIsBreak] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  //adding focus sessions to Firestore database 
+  // Updated focus session logging logic
   const logFocusSession = async () => {
     if (!auth.currentUser) return;
     const statsRef = doc(db, 'userStats', auth.currentUser.uid);
+
     try {
-      await updateDoc(statsRef, {
+      const docSnap = await getDoc(statsRef);
+      if (!docSnap.exists()) return;
+
+      const stats = docSnap.data();
+      const updates: any = {
         focusSessions: increment(1),
-        weeklyFocusSessions: increment(1),
         points: increment(10),
-      });
+      };
+
+      const currentWeekly = stats?.weeklyFocusSessions ?? 0;
+
+      if (currentWeekly < 5) {
+        updates.weeklyFocusSessions = increment(1);
+      }
+
+      await updateDoc(statsRef, updates);
     } catch (error) {
       console.error('Error logging session:', error);
     }
   };
 
-  // focus sessions timers logic for single and loop 
   useEffect(() => {
     if (isRunning) {
       if (remainingTime > 0) {
@@ -72,7 +81,6 @@ export default function FocusSessionScreen() {
     };
   }, [isRunning, remainingTime, sessionType, sessionTime, breakTime, isBreak]);
 
-  // timing logic in minutes
   const startSession = () => {
     setRemainingTime(parseInt(sessionTime) * 60);
     setIsBreak(false);
@@ -93,7 +101,6 @@ export default function FocusSessionScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <ImageBackground
         source={require('@/assets/images/Foucs-image.png')}
         style={styles.backgroundImage}
@@ -106,7 +113,6 @@ export default function FocusSessionScreen() {
         </View>
       </ImageBackground>
 
-      {/* Single / Loop Buttons */}
       <View style={styles.categoryContainer}>
         {['Single', 'Loop'].map((type) => (
           <TouchableOpacity
@@ -130,7 +136,6 @@ export default function FocusSessionScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Session Time Card */}
         <View style={styles.card}>
           <Text style={styles.label}>Session Time (minutes):</Text>
           <TextInput
@@ -153,7 +158,6 @@ export default function FocusSessionScreen() {
           )}
         </View>
 
-        {/* Timer Card */}
         <View style={styles.timerCard}>
           <Text style={styles.timer}>{formatTime(remainingTime)}</Text>
           {isBreak && isRunning && (
@@ -162,7 +166,6 @@ export default function FocusSessionScreen() {
         </View>
       </ScrollView>
 
-      {/* Start / Stop Button at the bottom */}
       <View style={styles.bottomButtonContainer}>
         <TouchableOpacity
           style={isRunning ? styles.stopButton : styles.startButton}

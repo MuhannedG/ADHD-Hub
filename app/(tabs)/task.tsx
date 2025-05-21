@@ -146,16 +146,29 @@ export default function TaskManagerScreen() {
     const statsRef = doc(db, 'userStats', userId);
 
     const statsSnap = await getDoc(statsRef);
+    const stats = statsSnap.exists() ? statsSnap.data() : null;
+
+    const updates: any = {
+      completedTasksCount: increment(1),
+      points: increment(10), // 10 points per completed task
+    };
+
+    const currentMonthly = stats?.monthlyTasksCompleted ?? 0;
+    if (currentMonthly < 20) {
+      updates.monthlyTasksCompleted = increment(1);
+    }
+
     if (statsSnap.exists()) {
-      await updateDoc(statsRef, {
-        completedTasksCount: increment(1),
-        points: increment(10), // 10 points for each task
-      });
+      await updateDoc(statsRef, updates);
     } else {
       await setDoc(statsRef, {
         completedTasksCount: 1,
         points: 10,
         focusSessions: 0,
+        monthlyTasksCompleted: 1,
+        weeklyFocusSessions: 0,
+        weeklyReset: '',
+        monthlyReset: '',
       });
     }
   };

@@ -19,7 +19,6 @@
     "@react-native-picker/picker": "2.11.0",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.1.8",
-    "@terrylinla/react-native-sketch-canvas": "^0.8.0",
     "dayjs": "^1.11.13",
     "expo": "53.0.9",
     "expo-blur": "~14.1.4",
